@@ -1,3 +1,17 @@
+/* Copyright 2026 uint (and contributors)
+
+Permission to use, copy, modify, and distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
+ 
 #ifndef ULESTR_H
 #define ULESTR_H
 
@@ -5,13 +19,13 @@
 
 typedef char* ustr;
 
-/* get length of a string */
+/* Get length of a string */
 size_t ustrlen(const ustr);
 
-/* allocate a new string */
+/* Allocate a new string */
 ustr ustrnew(const char*);
 
-/* free a string */
+/* Free a string */
 void ustrfree(ustr);
 
 #endif /* ULESTR_H */
