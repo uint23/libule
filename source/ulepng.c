@@ -3,39 +3,35 @@
 
 #include "ulepng.h"
 
-ulepng* ulepng_init(void)
+ulepng ulepng_init(void)
 {
-	ulepng* png = malloc(sizeof(ulepng));
-	if (png == NULL)
-		return NULL;
-
-	png->data = NULL;
-	png->size = 0;
-
+	ulepng png = { NULL, 0, ULEPNG_ERR_NONE };
 	return png;
 }
 
-ulepng* ulepng_load_file(const char* path)
+ulepng ulepng_init_file(const char* path)
 {
-	ulepng* png = ulepng_init();
+	ulepng png = ulepng_init();
 	FILE* file = NULL;
 
 	file = fopen(path, "rb");
-	if (file == NULL)
-		return NULL;
+	if (file == NULL) {
+		png.err = ULEPNG_ERR_FOPEN;
+		return png;
+	}
 
 	/* get file size */
 	fseek(file, 0L, SEEK_END);
-	png->size = ftell(file);
+	png.size = ftell(file);
 	rewind(file);
 
-	png->data = malloc(png->size);
-	if (png->data == NULL) {
-		png->err = ULEPNG_ERR_OOM;
+	png.data = malloc(png.size);
+	if (png.data == NULL) {
+		png.err = ULEPNG_ERR_OOM;
 		goto cleanup;
 	}
 
-	fread(png->data, 1, png->size, file);
+	fread(png.data, 1, png.size, file);
 
 cleanup:
 	fclose(file);

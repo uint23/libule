@@ -5,7 +5,10 @@
 
 typedef enum {
 	ULEPNG_ERR_NONE,
-	ULEPNG_ERR_OOM, /* Out of memory */
+	ULEPNG_ERR_FAIL,
+
+	ULEPNG_ERR_FOPEN,
+	ULEPNG_ERR_OOM,
 
 	ULEPNG_ERR_LAST
 } UlePNGErr;
@@ -16,8 +19,11 @@ typedef struct {
 	UlePNGErr      err;
 } ulepng;
 
-ulepng* ulepng_init(void);
-ulepng* ulepng_load_file(const char* path);
+/* Initialise a ulepng with 0 values */
+ulepng ulepng_init(void);
+
+/* Initialise a ulepng with an image loaded from disk */
+ulepng ulepng_init_file(const char* path);
 
 #endif /* ULEPNG_H */
 
