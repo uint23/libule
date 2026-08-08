@@ -14,7 +14,10 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
+	/* png = ulepng_init();
+	   ulepng_load_file(&png, argv[1]); */
 	png = ulepng_init_file(argv[1]);
+
 	if (png.err != ULEPNG_ERR_NONE) {
 		fprintf(stderr, "Failed to open PNG file [ERR: %d]\n", png.err);
 		return png.err;

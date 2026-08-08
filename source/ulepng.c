@@ -12,29 +12,34 @@ ulepng ulepng_init(void)
 ulepng ulepng_init_file(const char* path)
 {
 	ulepng png = ulepng_init();
+	ulepng_load_file(&png, path);
+	return png;
+}
+
+void ulepng_load_file(ulepng* png, const char* path)
+{
 	FILE* file = NULL;
 
 	file = fopen(path, "rb");
 	if (file == NULL) {
-		png.err = ULEPNG_ERR_FOPEN;
-		return png;
+		png->err = ULEPNG_ERR_FOPEN;
+		return;
 	}
 
 	/* get file size */
 	fseek(file, 0L, SEEK_END);
-	png.size = ftell(file);
+	png->size = ftell(file);
 	rewind(file);
 
-	png.data = malloc(png.size);
-	if (png.data == NULL) {
-		png.err = ULEPNG_ERR_OOM;
+	png->data = malloc(png->size);
+	if (png->data == NULL) {
+		png->err = ULEPNG_ERR_OOM;
 		goto cleanup;
 	}
 
-	fread(png.data, 1, png.size, file);
+	fread(png->data, 1, png->size, file);
 
 cleanup:
 	fclose(file);
-	return png;
 }
 
