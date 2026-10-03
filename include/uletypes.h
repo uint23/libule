@@ -37,9 +37,13 @@ typedef signed char   ule_i8;
 #if USHRT_MAX == 0xFFFFU
 	typedef unsigned short ule_u16;
 	typedef signed short   ule_i16;
+	#define ULE_I16_MAX ((ule_i16)SHRT_MAX)
+	#define ULE_I16_MIN ((ule_i16)SHRT_MIN)
 #elif UINT_MAX == 0xFFFFU
 	typedef unsigned int ule_u16;
 	typedef signed int   ule_i16;
+	#define ULE_I16_MAX ((ule_i16)INT_MAX)
+	#define ULE_I16_MIN ((ule_i16)INT_MIN)
 #else
 	#error "libule: no 16-bit integer type"
 #endif
@@ -48,12 +52,18 @@ typedef signed char   ule_i8;
 #if UINT_MAX == 0xFFFFFFFFUL
 	typedef unsigned int ule_u32;
 	typedef signed int   ule_i32;
+	#define ULE_I32_MAX ((ule_i32)INT_MAX)
+	#define ULE_I32_MIN ((ule_i32)INT_MIN)
 #elif ULONG_MAX == 0xFFFFFFFFUL
 	typedef unsigned long ule_u32;
 	typedef signed long   ule_i32;
+	#define ULE_I32_MAX ((ule_i32)LONG_MAX)
+	#define ULE_I32_MIN ((ule_i32)LONG_MIN)
 #elif USHRT_MAX == 0xFFFFFFFFUL
 	typedef unsigned short ule_u32;
 	typedef signed short   ule_i32;
+	#define ULE_I32_MAX ((ule_i32)SHRT_MAX)
+	#define ULE_I32_MIN ((ule_i32)SHRT_MIN)
 #else
 	#error "libule: no 32-bit integer type"
 #endif
@@ -62,18 +72,27 @@ typedef signed char   ule_i8;
 #if ULONG_MAX > 0xFFFFFFFFUL
 	typedef unsigned long ule_u64;
 	typedef signed long   ule_i64;
+	#define ULE_I64_MAX ((ule_i64)LONG_MAX)
+	#define ULE_I64_MIN ((ule_i64)LONG_MIN)
 	#define ULE_HAS_64 1
-
-#elif defined(_MSC_VER)
-	typedef unsigned __int64 ule_u64;
-	typedef signed __int64   ule_i64;
+#elif defined(_WIN64)
+	typedef size_t    ule_u64;
+	typedef ptrdiff_t ule_i64;
 	#define ULE_HAS_64 1
-
-#elif defined(__GNUC__) || defined(__clang__)
-	__extension__ typedef unsigned long long ule_u64;
-	__extension__ typedef signed long long   ule_i64;
-	#define ULE_HAS_64 1
+	#define ULE_I64_TWOS_COMPLEMENT 1
 #endif
+
+typedef char ule_check_u8[(sizeof(ule_u8) * CHAR_BIT == 8) ? 1 : -1];
+typedef char ule_check_i8[(sizeof(ule_i8) * CHAR_BIT == 8) ? 1 : -1];
+typedef char ule_check_u16[(sizeof(ule_u16) * CHAR_BIT == 16) ? 1 : -1];
+typedef char ule_check_i16[(sizeof(ule_i16) * CHAR_BIT == 16) ? 1 : -1];
+typedef char ule_check_u32[(sizeof(ule_u32) * CHAR_BIT == 32) ? 1 : -1];
+typedef char ule_check_i32[(sizeof(ule_i32) * CHAR_BIT == 32) ? 1 : -1];
+
+#ifdef ULE_HAS_64
+	typedef char ule_check_u64[(sizeof(ule_u64) * CHAR_BIT == 64) ? 1 : -1];
+	typedef char ule_check_i64[(sizeof(ule_i64) * CHAR_BIT == 64) ? 1 : -1];
+#endif /* ULE_HAS_64 */
 
 /* Pointer Length Sizes */
 #if defined(ULE_UPTR_TYPE) != defined(ULE_IPTR_TYPE)
@@ -84,43 +103,34 @@ typedef signed char   ule_i8;
 	typedef ULE_UPTR_TYPE ule_uptr;
 	typedef ULE_IPTR_TYPE ule_iptr;
 
-#elif defined(_WIN64)
-	typedef unsigned __int64 ule_uptr;
-	typedef signed __int64   ule_iptr;
-
-#elif defined(_WIN32)
-	typedef unsigned long ule_uptr;
-	typedef signed long   ule_iptr;
-
-#elif defined(__LP64__) || defined(_LP64)
-	typedef unsigned long ule_uptr;
-	typedef signed long   ule_iptr;
-
-#elif defined(__ILP32__) || defined(_ILP32)
-	typedef unsigned int ule_uptr;
-	typedef signed int   ule_iptr;
+#elif defined(_WIN64) || defined(_WIN32) || \
+      defined(__LP64__) || defined(_LP64) || \
+      defined(__ILP32__) || defined(_ILP32)
+	typedef size_t    ule_uptr;
+	typedef ptrdiff_t ule_iptr;
 
 #else
 	#error "libule: define ULE_UPTR_TYPE and ULE_IPTR_TYPE for this target"
 #endif
 
+typedef char ule_check_uptr[(sizeof(ule_uptr) == sizeof(void*)) ? 1 : -1];
+typedef char ule_check_iptr[(sizeof(ule_iptr) == sizeof(void*)) ? 1 : -1];
+
 /* Limits */
 #define ULE_U8_MAX ((ule_u8)0xFFU)
-#define ULE_I8_MAX ((ule_i8)0x7F)
-#define ULE_I8_MIN ((ule_i8)(-0x7F - 1))
+#define ULE_I8_MAX ((ule_i8)SCHAR_MAX)
+#define ULE_I8_MIN ((ule_i8)SCHAR_MIN)
 
 #define ULE_U16_MAX ((ule_u16)0xFFFFU)
-#define ULE_I16_MAX ((ule_i16)0x7FFF)
-#define ULE_I16_MIN ((ule_i16)(-0x7FFF - 1))
-
 #define ULE_U32_MAX ((ule_u32)0xFFFFFFFFUL)
-#define ULE_I32_MAX ((ule_i32)0x7FFFFFFFL)
-#define ULE_I32_MIN ((ule_i32)(-0x7FFFFFFFL - 1L))
 
 #ifdef ULE_HAS_64
 	#define ULE_U64_MAX ((ule_u64)-1)
-	#define ULE_I64_MAX ((ule_i64)(ULE_U64_MAX >> 1))
-	#define ULE_I64_MIN ((ule_i64)(-ULE_I64_MAX - 1))
+
+	#ifdef ULE_I64_TWOS_COMPLEMENT
+		#define ULE_I64_MAX ((ule_i64)(ULE_U64_MAX >> 1))
+		#define ULE_I64_MIN ((ule_i64)(-ULE_I64_MAX - 1))
+	#endif /* ULE_I64_TWOS_COMPLEMENT */
 #endif /* ULE_HAS_64 */
 
 /* Size types */
@@ -136,10 +146,10 @@ typedef ptrdiff_t ule_isize;
 	typedef ule_u32 u32;
 	typedef ule_i32 i32;
 
-	#if defined(ULE_HAS_64)
+	#ifdef ULE_HAS_64
 		typedef ule_u64 u64;
 		typedef ule_i64 i64;
-	#endif
+	#endif /* ULE_HAS_64 */
 
 	typedef ule_uptr  uptr;
 	typedef ule_iptr  iptr;
