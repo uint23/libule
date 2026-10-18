@@ -96,6 +96,38 @@ char* uleutf_chr(const char* src, ule_i32 chr)
 	return uleutf_str(src, c);
 }
 
+int uleutf_cmp(const char* src1, const char* src2, size_t n)
+{
+	while (('\0' != *src1) || ('\0' != *src2)) {
+		if ((unsigned char)*src1 < (unsigned char)*src2)
+			return -1;
+		else if ((unsigned char)*src1 > (unsigned char)*src2)
+			return 1;
+
+		src1++;
+		src2++;
+	}
+
+	/* both utf8 strings matched */
+	return 0;
+}
+
+int uleutf_ncmp(const char* src1, const char* src2, size_t n)
+{
+	while ((0 != n--) && (('\0' != *src1) || ('\0' != *src2))) {
+		if ((unsigned char)*src1 < (unsigned char)*src2)
+			return -1;
+		else if ((unsigned char)*src1 > (unsigned char)*src2)
+			return 1;
+
+		src1++;
+		src2++;
+	}
+
+	/* both utf8 strings matched */
+	return 0;
+}
+
 char* uleutf_str(const char* haystack, const char* needle)
 {
 	ule_i32 throwaway_codepoint = 0;

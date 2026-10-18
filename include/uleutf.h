@@ -30,6 +30,15 @@ char* uleutf_cat(char* dst, const char* src);
 /* Find the first match of the utf8 codepoint chr in the utf8 string src */
 char* uleutf_chr(const char* src, ule_i32 chr);
 
+/* Return less than 0, 0, greater than 0 if src1 < src2, src1 == src2,
+   src1 > src2 respectively */
+int uleutf_cmp(const char* src1, const char* src2, size_t n);
+
+/* Return less than 0, 0, greater than 0 if src1 < src2,
+   src1 == src2, src1 > src2 respectively. Checking at most n
+   bytes of each utf8 string */
+int uleutf_ncmp(const char* src1, const char* src2, size_t n);
+
 /* The position of the utf8 string needle in the utf8 string haystack */
 char* uleutf_str(const char* haystack, const char* needle);
 
@@ -50,7 +59,6 @@ size_t uleutf_codepointsize(ule_i32 chr);
 int uleutf_codepointvisualwidth(ule_i32 chr);
 
 /* TODO */
-int uleutf_cmp(const char* src1, const char* src2);
 char* uleutf_cpy(char* dst, const char* src);
 size_t uleutf_cspn(const char* src, const char* reject);
 char* uleutf_dup(const char* src);
@@ -58,7 +66,6 @@ size_t uleutf_len(const char* str);
 size_t uleutf_nlen(const char* str, size_t n);
 int uleutf_ncasecmp(const char* src1, const char* src2, size_t n);
 char* uleutf_ncat(char* dst, const char* src, size_t n);
-int uleutf_ncmp(const char* src1, const char* src2, size_t n);
 char* uleutf_ncpy(char* dst, const char* src, size_t n);
 char* uleutf_ndup(const char* src, size_t n);
 char* uleutf_pbrk(const char* str, const char* accept);
