@@ -15,8 +15,12 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 #ifndef ULELOG_H
 #define ULELOG_H
 
-void ulelog(int code, const char* fmt, ...);
-void ulelog_die(int code, const char* fmt, ...);
+#ifndef ULELOG_CODE_T
+#define ULELOG_CODE_T int
+#endif /* ULELOG_CODE_T */
+
+void ulelog(const char* fmt, ...);
+void ulelog_die(ULELOG_CODE_T code, const char* fmt, ...);
 
 #endif /* ULELOG_H */
 
