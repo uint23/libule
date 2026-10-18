@@ -2,6 +2,133 @@
 
 #include "uleutf.h"
 
+int uleutf_casecmp(const char* src1, const char* src2)
+{
+	ule_i32 src1_lwr_cp = 0;
+	ule_i32 src2_lwr_cp = 0;
+	ule_i32 src1_upr_cp = 0;
+	ule_i32 src2_upr_cp = 0;
+	ule_i32 src1_orig_cp = 0;
+	ule_i32 src2_orig_cp = 0;
+
+	for (;;) {
+		src1 = uleutf_codepoint(src1, &src1_orig_cp);
+		src2 = uleutf_codepoint(src2, &src2_orig_cp);
+
+		/* lower the srcs if required */
+		src1_lwr_cp = utf8lwrcodepoint(src1_orig_cp);
+		src2_lwr_cp = utf8lwrcodepoint(src2_orig_cp);
+
+		/* lower the srcs if required */
+		src1_upr_cp = utf8uprcodepoint(src1_orig_cp);
+		src2_upr_cp = utf8uprcodepoint(src2_orig_cp);
+
+		/* check if the lowered codepoints match */
+		if ((0 == src1_orig_cp) && (0 == src2_orig_cp))
+			return 0;
+		else if ((src1_lwr_cp == src2_lwr_cp) || (src1_upr_cp == src2_upr_cp))
+			continue;
+
+		/* if they don't match, then we return the difference between the characters */
+		return src1_lwr_cp - src2_lwr_cp;
+	}
+}
+
+char* uleutf_cat(char* dst, const char* src)
+{
+	char* d = dst;
+
+	/* find the null terminating byte in dst */
+	while ('\0' != *d)
+		d++;
+
+	/* overwriting the null terminating byte in dst, append src byte-by-byte */
+	while ('\0' != *src)
+		*d++ = *src++;
+
+	/* write out a new null terminating byte into dst */
+	*d = '\0';
+
+	return dst;
+}
+
+char* uleutf_chr(const char* src, ule_i32 chr)
+{
+	char c[5] = {'\0', '\0', '\0', '\0', '\0'};
+
+	if (0 == chr) {
+		/* being asked to return position of null terminating byte, so
+		   just run s to the end, and return! */
+		while ('\0' != *src)
+			src++;
+
+		return (char*)src;
+	}
+	else if (0 == ((ule_i32)0xffffff80 & chr)) {
+		/* 1-byte/7-bit ascii
+		   (0b0xxxxxxx) */
+		c[0] = (ule_i8)chr;
+	}
+	else if (0 == ((ule_i32)0xfffff800 & chr)) {
+		/* 2-byte/11-bit utf8 code point
+		   (0b110xxxxx 0b10xxxxxx) */
+		c[0] = (ule_i8)(0xc0 | (ule_i8)(chr >> 6));
+		c[1] = (ule_i8)(0x80 | (ule_i8)(chr & 0x3f));
+	}
+	else if (0 == ((ule_i32)0xffff0000 & chr)) {
+		/* 3-byte/16-bit utf8 code point
+		   (0b1110xxxx 0b10xxxxxx 0b10xxxxxx) */
+		c[0] = (ule_i8)(0xe0 | (ule_i8)(chr >> 12));
+		c[1] = (ule_i8)(0x80 | (ule_i8)((chr >> 6) & 0x3f));
+		c[2] = (ule_i8)(0x80 | (ule_i8)(chr & 0x3f));
+	}
+	else { /* if (0 == ((int)0xffe00000 & chr)) { */
+		/* 4-byte/21-bit utf8 code point
+		   (0b11110xxx 0b10xxxxxx 0b10xxxxxx 0b10xxxxxx) */
+		c[0] = (ule_i8)(0xf0 | (ule_i8)(chr >> 18));
+		c[1] = (ule_i8)(0x80 | (ule_i8)((chr >> 12) & 0x3f));
+		c[2] = (ule_i8)(0x80 | (ule_i8)((chr >> 6) & 0x3f));
+		c[3] = (ule_i8)(0x80 | (ule_i8)(chr & 0x3f));
+	}
+
+	/* we've made c into a 2 utf8 codepoint string, one for the chr we are
+	   seeking, another for the null terminating byte. now use utf8str to search */
+	return uleutf_str(src, c);
+}
+
+char* uleutf_str(const char* haystack, const char* needle)
+{
+	ule_i32 throwaway_codepoint = 0;
+
+	/* if needle has no utf8 codepoints before the null terminating
+	   byte then return haystack */
+	if ('\0' == *needle)
+		return (char*)haystack;
+
+	while ('\0' != *haystack) {
+		const char* maybe_match = haystack;
+		const char* n = needle;
+
+		while (*haystack == *n && (*haystack != '\0' && *n != '\0')) {
+			n++;
+			haystack++;
+		}
+
+		if ('\0' == *n)
+			/* we found the whole utf8 string for needle in haystack at
+			   maybeMatch, so return it */
+			return (char*)maybe_match;
+		else
+			/* h could be in the middle of an unmatching utf8 codepoint,
+			   so we need to march it on to the next character beginning
+			   starting from the current character */
+			haystack = uleutf_codepoint(maybe_match, &throwaway_codepoint);
+	}
+
+	/* no match */
+	return NULL;
+}
+
 char* uleutf_codepoint(const char* str, ule_i32* out_codepoint)
 {
 	size_t n = 1;

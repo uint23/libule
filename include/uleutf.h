@@ -20,7 +20,18 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
 #include "uletypes.h"
 
-/* Implemented */
+/* Return less than 0, 0, greater than 0 if src1 < src2, src1 == src2, src1 >
+   src2 respectively, case insensitive */
+int uleutf_casecmp(const char* src1, const char* src2);
+
+/* Append the utf8 string src onto the utf8 string dst */
+char* uleutf_cat(char* dst, const char* src);
+
+/* Find the first match of the utf8 codepoint chr in the utf8 string src */
+char* uleutf_chr(const char* src, ule_i32 chr);
+
+/* The position of the utf8 string needle in the utf8 string haystack */
+char* uleutf_str(const char* haystack, const char* needle);
 
 /* Sets out_codepoint to the current utf8 codepoint in str, and returns the
    address of the next utf8 codepoint after the current one in str */
@@ -39,9 +50,6 @@ size_t uleutf_codepointsize(ule_i32 chr);
 int uleutf_codepointvisualwidth(ule_i32 chr);
 
 /* TODO */
-int uleutf_casecmp(const char* src1, const char* src2);
-char* uleutf_cat(char* dst, const char* src);
-char* uleutf_chr(const char* src, ule_i32 chr);
 int uleutf_cmp(const char* src1, const char* src2);
 char* uleutf_cpy(char* dst, const char* src);
 size_t uleutf_cspn(const char* src, const char* reject);
@@ -59,7 +67,6 @@ size_t uleutf_size(const char* str);
 size_t uleutf_size_lazy(const char* str);
 size_t uleutf_nsize_lazy(const char* str, size_t n);
 size_t uleutf_spn(const char* src, const char* accept);
-char* uleutf_str(const char* haystack, const char* needle);
 char* uleutf_casestr(const char* haystack, const char* needle);
 char* uleutf_valid(const char* str);
 char* uleutf_nvalid(const char* str, size_t n);
