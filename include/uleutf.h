@@ -12,17 +12,31 @@ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */
 
-/* uleutf is based on utf8.h from  */
+/* uleutf is based on utf8.h on https://github.com/sheredom/utf8.h
+   Implementations are their work, not mine. This is just an ANSI C rewrite */
 
 #ifndef ULEUTF_H
 #define ULEUTF_H
 
 #include "uletypes.h"
 
-typedef char    utf8_int8_t;
-typedef ule_i32 utf8_int32_t;
-
 /* Implemented */
+
+/* Sets out_codepoint to the current utf8 codepoint in str, and returns the
+   address of the next utf8 codepoint after the current one in str */
+char* uleutf_codepoint(const char* str, ule_i32* out_codepoint);
+
+/* Calculates the size of the next utf8 codepoint in str */
+size_t uleutf_codepointcalcsize(const char* str);
+
+/* Returns the size of the given codepoint in bytes */
+size_t uleutf_codepointsize(ule_i32 chr);
+
+/* Returns the number of terminal columns the given codepoint occupies when
+   printed with a fixed-width font: 0 for zero-width codepoints (the null
+   codepoint and combining marks), 2 for wide (double-width) codepoints, 1 for
+   ordinary codepoints, and -1 for non-printable control codepoints */
+int uleutf_codepointvisualwidth(ule_i32 chr);
 
 /* TODO */
 int uleutf_casecmp(const char* src1, const char* src2);
@@ -50,10 +64,6 @@ char* uleutf_casestr(const char* haystack, const char* needle);
 char* uleutf_valid(const char* str);
 char* uleutf_nvalid(const char* str, size_t n);
 int uleutf_makevalid(char* str, ule_i32 replacement);
-char* uleutf_codepoint(const char* str, ule_i32* out_codepoint);
-size_t uleutf_codepointcalcsize(const char* str);
-size_t uleutf_codepointsize(ule_i32 chr);
-int uleutf_codepointvisualwidth(ule_i32 chr);
 char* uleutf_catcodepoint(char* str, ule_i32 chr, size_t n);
 int uleutf_islower(ule_i32 chr);
 int uleutf_isupper(ule_i32 chr);
@@ -66,3 +76,4 @@ char* uleutf_dup_ex(const char* src, char* (*alloc_func_ptr)(char*, size_t), cha
 char* uleutf_ndup_ex(const char* src, size_t n, char* (*alloc_func_ptr)(char*, size_t), char* user_data);
 
 #endif /* ULEUTF_H */
+
