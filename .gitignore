@@ -2,6 +2,7 @@
 *.swo
 
 *.bin
+build/
 
 compile_flags.txt
 
