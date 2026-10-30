@@ -28,19 +28,19 @@ int main(void)
 		return EXIT_FAILURE;
 	
 	for (;;) {
-		ssize_t n = ulepipe_recieve(&master, &data, sizeof(data));
+		ssize_t n = ulepipe_receive(&master, &data, sizeof(data));
 		if (!(n == sizeof(data))) {
-			printf("recieved data too small\n");
+			printf("received data too small\n");
 			continue;
 		}
 		
 		switch (data.type) {
 		case TEST_STOP:
-			printf("recieved stop\n");
+			printf("received stop\n");
 			fflush(stdout);
 			goto end;
 		case TEST_NAME_CHANGE:
-			printf("recieved name_change\n");
+			printf("received name_change\n");
 			fflush(stdout);
 			strncpy(name, data.name, 64);
 		default:

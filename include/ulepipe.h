@@ -20,7 +20,7 @@ void ulepipe_close(ulepipe* pipe);
 ssize_t ulepipe_send(const char* path, const void* data, size_t size);
 
 /* Receive data from a ulepipe socket */
-ssize_t ulepipe_recieve(ulepipe* pipe, void* data, size_t size);
+ssize_t ulepipe_receive(ulepipe* pipe, void* data, size_t size);
 
 #endif /* ULEUPIPE_H */
 

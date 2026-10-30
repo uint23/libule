@@ -95,7 +95,7 @@ ulepipe_send(const char* path, const void* data, size_t size)
 }
 
 ssize_t
-ulepipe_recieve(ulepipe* pipe, void* data, size_t size)
+ulepipe_receive(ulepipe* pipe, void* data, size_t size)
 {
 	struct msghdr msg = { 0 };
 	struct iovec iov = { 0 };
