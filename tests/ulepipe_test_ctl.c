@@ -20,6 +20,9 @@ typedef struct {
 int main(int argc, char* argv[])
 {
 	const char* cmd = argv[1];
+	
+	if (argc < 2)
+		return EXIT_FAILURE;
 
 	if (ssame(cmd, "stop")) {
 		some_data_layout stop_data = {0, 0, "die", TEST_STOP};

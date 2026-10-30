@@ -36,8 +36,12 @@ int main(void)
 		
 		switch (data.type) {
 		case TEST_STOP:
+			printf("recieved stop\n");
+			fflush(stdout);
 			goto end;
 		case TEST_NAME_CHANGE:
+			printf("recieved name_change\n");
+			fflush(stdout);
 			strncpy(name, data.name, 64);
 		default:
 			continue;
@@ -46,8 +50,9 @@ int main(void)
 	}
 	
 end:
-	printf("%s", data.name);
+	printf("%s\n", name);
 
+	ulepipe_close(&master);
 	return EXIT_SUCCESS;
 }
 
