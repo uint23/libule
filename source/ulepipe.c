@@ -67,7 +67,7 @@ ulepipe_send(const char* path, void* data, size_t size)
 	struct sockaddr_un client = { 0 };
 	struct msghdr msg = { 0 };
 	struct iovec iov = { 0 };
-	struct timeval timeout = { 5, 0 };
+	struct timeval timeout = { ULEPIPE_TIMEOUT, 0 };
 	char dir[64] = { 0 };
 	int sverrno = 0;
 	ssize_t n = -1;

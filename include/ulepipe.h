@@ -6,6 +6,10 @@
 #include <sys/un.h>
 #include <unistd.h>
 
+#ifndef ULEPIPE_TIMEOUT
+#define ULEPIPE_TIMEOUT 5
+#endif
+
 typedef struct {
 	int       fd;
 	socklen_t peer_len;
