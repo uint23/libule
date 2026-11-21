@@ -17,12 +17,12 @@ int uleutf_casecmp(const char* src1, const char* src2)
 		src2 = uleutf_codepoint(src2, &src2_orig_cp);
 
 		/* lower the srcs if required */
-		src1_lwr_cp = utf8lwrcodepoint(src1_orig_cp);
-		src2_lwr_cp = utf8lwrcodepoint(src2_orig_cp);
+		src1_lwr_cp = uleutf_lwrcodepoint(src1_orig_cp);
+		src2_lwr_cp = uleutf_lwrcodepoint(src2_orig_cp);
 
 		/* lower the srcs if required */
-		src1_upr_cp = utf8uprcodepoint(src1_orig_cp);
-		src2_upr_cp = utf8uprcodepoint(src2_orig_cp);
+		src1_upr_cp = uleutf_uprcodepoint(src1_orig_cp);
+		src2_upr_cp = uleutf_uprcodepoint(src2_orig_cp);
 
 		/* check if the lowered codepoints match */
 		if ((0 == src1_orig_cp) && (0 == src2_orig_cp))
@@ -97,7 +97,7 @@ char* uleutf_chr(const char* src, ule_i32 chr)
 	return uleutf_str(src, c);
 }
 
-int uleutf_cmp(const char* src1, const char* src2, size_t n)
+int uleutf_cmp(const char* src1, const char* src2)
 {
 	while (('\0' != *src1) || ('\0' != *src2)) {
 		if ((unsigned char)*src1 < (unsigned char)*src2)
@@ -136,7 +136,7 @@ size_t uleutf_len(const char* str)
 
 size_t uleutf_nlen(const char* str, size_t n)
 {
-	const ule_i8* t = str;
+	const ule_i8* t = (ule_i8*)str;
 	size_t length = 0;
 
 	while ((size_t)(str - ((const char*)t)) < n && '\0' != *str) {
@@ -218,7 +218,7 @@ char* uleutf_valid(const char* str)
 
 char* uleutf_nvalid(const char* str, size_t n)
 {
-	const ule_i8* t = str;
+	const ule_i8* t = (ule_i8*)str;
 	size_t consumed = 0;
 	size_t remaining = 0;
 
@@ -627,6 +627,154 @@ ule_i32 uleutf_lwrcodepoint(ule_i32 cp)
 		case 0xa7b2: cp = 0x029d; break;
 		case 0xa7b3: cp = 0xab53; break;
 		/* U+1C80..U+1C88 are historic lowercase Cyrillic forms; already lowercase */
+		}
+	}
+
+	return cp;
+}
+
+ule_i32 uleutf_uprcodepoint(ule_i32 cp)
+{
+	if (((0x0061 <= cp) && (0x007a >= cp)) ||
+	    ((0x00e0 <= cp) && (0x00f6 >= cp)) ||
+	    ((0x00f8 <= cp) && (0x00fe >= cp)) ||
+	    ((0x03b1 <= cp) && (0x03c1 >= cp)) ||
+	    ((0x03c3 <= cp) && (0x03cb >= cp)) ||
+	    ((0x0430 <= cp) && (0x044f >= cp)))
+		cp -= 32;
+	else if ((0x0450 <= cp) && (0x045f >= cp))
+		cp -= 80;
+	else if ((0x0561 <= cp) && (0x0586 >= cp))
+		cp -= 48; /* Armenian */
+	else if ((0xab70 <= cp) && (0xabbf >= cp))
+		cp -= 0x97d0; /* Cherokee Supplement to Cherokee */
+	else if ((0x13f8 <= cp) && (0x13fd >= cp))
+		cp -= 8;
+	else if (((0x0100 <= cp) && (0x012f >= cp)) ||
+	         ((0x0132 <= cp) && (0x0137 >= cp)) ||
+	         ((0x014a <= cp) && (0x0177 >= cp)) ||
+	         ((0x0182 <= cp) && (0x0185 >= cp)) ||
+	         ((0x01a0 <= cp) && (0x01a5 >= cp)) ||
+	         ((0x01de <= cp) && (0x01ef >= cp)) ||
+	         ((0x01f8 <= cp) && (0x021f >= cp)) ||
+	         ((0x0222 <= cp) && (0x0233 >= cp)) ||
+	         ((0x0246 <= cp) && (0x024f >= cp)) ||
+	         ((0x03d8 <= cp) && (0x03ef >= cp)) ||
+	         ((0x0460 <= cp) && (0x0481 >= cp)) ||
+	         ((0x048a <= cp) && (0x04bf >= cp)) ||
+	         ((0x04d0 <= cp) && (0x04ff >= cp)) ||
+	         /* Cyrillic Supplement: odd codepoints are lowercase (even=upper) */
+	         ((0x0501 <= cp) && (0x052f >= cp)) ||
+	         /* Latin Extended-C: odd=lower ranges (even=upper) */
+	         ((0x2c73 <= cp) && (0x2c73 >= cp)) ||
+	         /* Latin Extended-D: odd=lower ranges (even=upper) */
+	         ((0xa722 <= cp) && (0xa72f >= cp)) ||
+	         ((0xa732 <= cp) && (0xa76f >= cp)) ||
+	         ((0xa77e <= cp) && (0xa787 >= cp)) ||
+	         ((0xa790 <= cp) && (0xa793 >= cp)) ||
+	         ((0xa796 <= cp) && (0xa7a9 >= cp)) ||
+	         ((0xa7b4 <= cp) && (0xa7c3 >= cp))) {
+				cp &= ~0x1;
+			}
+	else if (((0x0139 <= cp) && (0x0148 >= cp)) ||
+	         ((0x0179 <= cp) && (0x017e >= cp)) ||
+	         ((0x01af <= cp) && (0x01b0 >= cp)) ||
+	         ((0x01b3 <= cp) && (0x01b6 >= cp)) ||
+	         ((0x01cd <= cp) && (0x01dc >= cp)) ||
+	         ((0x04c1 <= cp) && (0x04ce >= cp))) {
+		cp -= 1;
+		cp |= 0x1;
+	}
+	else {
+		switch (cp) {
+		default: break;
+		case 0x00ff: cp = 0x0178; break;
+		case 0x04cf: cp = 0x04c0; break;
+		case 0x03c2:
+			/* final sigma has no uppercase form of its own */
+			cp = 0x03a3;
+			break;
+		case 0x0180: cp = 0x0243; break;
+		case 0x01dd: cp = 0x018e; break;
+		case 0x019a: cp = 0x023d; break;
+		case 0x019e: cp = 0x0220; break;
+		case 0x0292: cp = 0x01b7; break;
+		case 0x01c6: cp = 0x01c4; break;
+		case 0x01c9: cp = 0x01c7; break;
+		case 0x01cc: cp = 0x01ca; break;
+		case 0x01f3: cp = 0x01f1; break;
+		case 0x01bf: cp = 0x01f7; break;
+		case 0x0188: cp = 0x0187; break;
+		case 0x018c: cp = 0x018b; break;
+		case 0x0192: cp = 0x0191; break;
+		case 0x0199: cp = 0x0198; break;
+		case 0x01a8: cp = 0x01a7; break;
+		case 0x01ad: cp = 0x01ac; break;
+		case 0x01b9: cp = 0x01b8; break;
+		case 0x01bd: cp = 0x01bc; break;
+		case 0x01f5: cp = 0x01f4; break;
+		case 0x023c: cp = 0x023b; break;
+		case 0x0242: cp = 0x0241; break;
+		case 0x037b: cp = 0x03fd; break;
+		case 0x037c: cp = 0x03fe; break;
+		case 0x037d: cp = 0x03ff; break;
+		case 0x03f3: cp = 0x037f; break;
+		case 0x03ac: cp = 0x0386; break;
+		case 0x03ad: cp = 0x0388; break;
+		case 0x03ae: cp = 0x0389; break;
+		case 0x03af: cp = 0x038a; break;
+		case 0x03cc: cp = 0x038c; break;
+		case 0x03cd: cp = 0x038e; break;
+		case 0x03ce: cp = 0x038f; break;
+		case 0x0371: cp = 0x0370; break;
+		case 0x0373: cp = 0x0372; break;
+		case 0x0377: cp = 0x0376; break;
+		case 0x03d1: cp = 0x0398; break;
+		case 0x03d7: cp = 0x03cf; break;
+		case 0x03f2: cp = 0x03f9; break;
+		case 0x03f8: cp = 0x03f7; break;
+		case 0x03fb: cp = 0x03fa; break;
+		/* Latin Extended-C individual reverse mappings (lowercase -> uppercase) */
+		case 0x2c61: cp = 0x2c60; break;
+		/* Latin Extended-C even=lower (odd=upper) pairs: upr(even) = even-1 */
+		case 0x2c68: cp = 0x2c67; break;
+		case 0x2c6a: cp = 0x2c69; break;
+		case 0x2c6c: cp = 0x2c6b; break;
+		case 0x2c73: cp = 0x2c72; break;
+		case 0x2c76: cp = 0x2c75; break;
+		case 0x026b: cp = 0x2c62; break;
+		case 0x1d7d: cp = 0x2c63; break;
+		case 0x027d: cp = 0x2c64; break;
+		case 0x0251: cp = 0x2c6d; break;
+		case 0x0271: cp = 0x2c6e; break;
+		case 0x0250: cp = 0x2c6f; break;
+		case 0x0252: cp = 0x2c70; break;
+		/* Latin Extended-D individual reverse mappings */
+		/* Even=lower (odd=upper) pairs: upr(even) = even-1 */
+		case 0xa77a: cp = 0xa779; break;
+		case 0xa77c: cp = 0xa77b; break;
+		case 0xa78c: cp = 0xa78b; break;
+		case 0x1d79: cp = 0xa77d; break;
+		case 0x0265: cp = 0xa78d; break;
+		case 0x0266: cp = 0xa7aa; break;
+		case 0x025c: cp = 0xa7ab; break;
+		case 0x0261: cp = 0xa7ac; break;
+		case 0x026c: cp = 0xa7ad; break;
+		case 0x026a: cp = 0xa7ae; break;
+		case 0x029e: cp = 0xa7b0; break;
+		case 0x0287: cp = 0xa7b1; break;
+		case 0x029d: cp = 0xa7b2; break;
+		case 0xab53: cp = 0xa7b3; break;
+		/* Cyrillic Extended-C: historic lowercase -> Cyrillic uppercase */
+		case 0x1c80: cp = 0x0412; break;
+		case 0x1c81: cp = 0x0414; break;
+		case 0x1c82: cp = 0x041e; break;
+		case 0x1c83: cp = 0x0421; break;
+		case 0x1c84:
+		case 0x1c85: cp = 0x0422; break;
+		case 0x1c86: cp = 0x042a; break;
+		case 0x1c87: cp = 0x0462; break;
+		case 0x1c88: cp = 0xa64a; break;
 		}
 	}
 

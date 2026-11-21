@@ -32,7 +32,7 @@ char* uleutf_chr(const char* src, ule_i32 chr);
 
 /* Return less than 0, 0, greater than 0 if src1 < src2, src1 == src2,
    src1 > src2 respectively */
-int uleutf_cmp(const char* src1, const char* src2, size_t n);
+int uleutf_cmp(const char* src1, const char* src2);
 
 /* Number of utf8 codepoints in the utf8 string str,
    excluding the null terminating byte */
@@ -75,6 +75,9 @@ int uleutf_codepointvisualwidth(ule_i32 chr);
 /* Make a codepoint lower case if possible */
 ule_i32 uleutf_lwrcodepoint(ule_i32 cp);
 
+/* Make a codepoint upper case if possible */
+ule_i32 uleutf_uprcodepoint(ule_i32 cp);
+
 /* TODO */
 char* uleutf_cpy(char* dst, const char* src);
 size_t uleutf_cspn(const char* src, const char* reject);
@@ -98,7 +101,6 @@ int uleutf_islower(ule_i32 chr);
 int uleutf_isupper(ule_i32 chr);
 void uleutf_lwr(char* str);
 void uleutf_upr(char* str);
-ule_i32 uleutf_uprcodepoint(ule_i32 cp);
 char* uleutf_rcodepoint(const char* str, ule_i32* out_codepoint);
 char* uleutf_dup_ex(const char* src, char* (*alloc_func_ptr)(char*, size_t), char* user_data);
 char* uleutf_ndup_ex(const char* src, size_t n, char* (*alloc_func_ptr)(char*, size_t), char* user_data);
