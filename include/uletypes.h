@@ -141,6 +141,8 @@ typedef ule_u8 ule_bool;
 /* Size types */
 typedef size_t    ule_usize;
 typedef ptrdiff_t ule_isize;
+#define ULE_USIZE_MAX ((ule_usize)-1)
+#define ULE_UPTR_MAX  ((ule_uptr)-1)
 
 /* (Optional) Short names */
 #ifdef ULE_SHORT_TYPE_NAMES
