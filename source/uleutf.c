@@ -211,6 +211,109 @@ char* uleutf_str(const char* haystack, const char* needle)
 	return NULL;
 }
 
+char* uleutf_valid(const char* str)
+{
+	return uleutf_nvalid(str, ULE_USIZE_MAX);
+}
+
+char* uleutf_nvalid(const char* str, size_t n)
+{
+	const ule_i8* t = str;
+	size_t consumed = 0;
+	size_t remaining = 0;
+
+	while ((void)(consumed = (size_t)(str - (const char*)t)), consumed < n && '\0' != *str) {
+		remaining = n - consumed;
+
+		if (0x00 == (0x80 & *str))
+			str += 1; /* 1-byte ascii (began with 0b0xxxxxxx) */
+
+		else if (0xf0 == (0xf8 & *str)) {
+			/* ensure that there's 4 bytes or more remaining */
+			if (remaining < 4)
+				return (char*)str;
+
+			/* ensure each of the 3 following bytes in this 4-byte
+			   utf8 codepoint began with 0b10xxxxxx */
+			if ((0x80 != (0xc0 & str[1])) || (0x80 != (0xc0 & str[2])) || (0x80 != (0xc0 & str[3])))
+				return (char*)str;
+
+			/* ensure that our utf8 codepoint ended after 4 bytes */
+			if ((remaining != 4) && (0x80 == (0xc0 & str[4])))
+				return (char*)str;
+
+			/* ensure that the top 5 bits of this 4-byte utf8
+			   codepoint were not 0, as then we could have used
+			   one of the smaller encodings */
+			if ((0 == (0x07 & str[0])) && (0 == (0x30 & str[1])))
+				return (char*)str;
+
+			/* ensure that the codepoint is not above U+10FFFF */
+			if (((0x07 & str[0]) > 4) || ((4 == (0x07 & str[0])) && (0 != (0x30 & str[1]))))
+				return (char*)str;
+
+			/* 4-byte utf8 code point (began with 0b11110xxx) */
+			str += 4;
+		}
+
+		else if (0xe0 == (0xf0 & *str)) {
+			/* ensure that there's 3 bytes or more remaining */
+			if (remaining < 3)
+				return (char*)str;
+
+			/* ensure each of the 2 following bytes in this 3-byte
+			   utf8 codepoint began with 0b10xxxxxx */
+			if ((0x80 != (0xc0 & str[1])) || (0x80 != (0xc0 & str[2])))
+				return (char*)str;
+
+			/* ensure that our utf8 codepoint ended after 3 bytes */
+			if ((remaining != 3) && (0x80 == (0xc0 & str[3])))
+				return (char*)str;
+
+			/* ensure that the top 5 bits of this 3-byte utf8
+			   codepoint were not 0, as then we could have used
+			   one of the smaller encodings */
+			if ((0 == (0x0f & str[0])) && (0 == (0x20 & str[1])))
+				return (char*)str;
+
+			/* ensure that the codepoint is not a surrogate (U+D800..U+DFFF) */
+			if ((0x0d == (0x0f & str[0])) && (0 != (0x20 & str[1])))
+				return (char*)str;
+
+			/* 3-byte utf8 code point (began with 0b1110xxxx) */
+			str += 3;
+		}
+
+		else if (0xc0 == (0xe0 & *str)) {
+			/* ensure that there's 2 bytes or more remaining */
+			if (remaining < 2)
+				return (char*)str;
+
+			/* ensure the 1 following byte in this 2-byte
+			   utf8 codepoint began with 0b10xxxxxx */
+			if (0x80 != (0xc0 & str[1]))
+				return (char*)str;
+
+			/* ensure that our utf8 codepoint ended after 2 bytes */
+			if ((remaining != 2) && (0x80 == (0xc0 & str[2])))
+				return (char*)str;
+
+			/* ensure that the top 4 bits of this 2-byte utf8
+			   codepoint were not 0, as then we could have used
+			   one of the smaller encodings */
+			if (0 == (0x1e & str[0]))
+				return (char*)str;
+
+			/* 2-byte utf8 code point (began with 0b110xxxxx) */
+			str += 2;
+		}
+		else
+			return (char*)str; /* we have an invalid 0b1xxxxxxx utf8 code point entry */
+	}
+
+	return NULL;
+}
+
 char* uleutf_codepoint(const char* str, ule_i32* out_codepoint)
 {
 	size_t n = 1;

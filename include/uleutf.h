@@ -49,6 +49,13 @@ int uleutf_ncmp(const char* src1, const char* src2, size_t n);
 /* The position of the utf8 string needle in the utf8 string haystack */
 char* uleutf_str(const char* haystack, const char* needle);
 
+/* Return 0 on success, or the position of the invalid
+   utf8 codepoint on failure */
+char* uleutf_valid(const char* str);
+
+/* Similar to utf8valid, except that only at most n bytes of src are looked */
+char* uleutf_nvalid(const char* str, size_t n);
+
 /* Sets out_codepoint to the current utf8 codepoint in str, and returns the
    address of the next utf8 codepoint after the current one in str */
 char* uleutf_codepoint(const char* str, ule_i32* out_codepoint);
@@ -82,8 +89,6 @@ size_t uleutf_size_lazy(const char* str);
 size_t uleutf_nsize_lazy(const char* str, size_t n);
 size_t uleutf_spn(const char* src, const char* accept);
 char* uleutf_casestr(const char* haystack, const char* needle);
-char* uleutf_valid(const char* str);
-char* uleutf_nvalid(const char* str, size_t n);
 int uleutf_makevalid(char* str, ule_i32 replacement);
 char* uleutf_catcodepoint(char* str, ule_i32 chr, size_t n);
 int uleutf_islower(ule_i32 chr);
