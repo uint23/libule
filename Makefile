@@ -7,7 +7,8 @@ CPPFLAGS = -Iinclude
 
 LIBS = build/libulepipe.a \
        build/libulepng.a \
-       build/libulestr.a
+       build/libulestr.a \
+       build/libuleutf.a
 
 all: ${LIBS}
 
@@ -32,11 +33,10 @@ build/libulestr.a: source/ulestr.c include/ulestr.h
 	${CC} ${CFLAGS} ${CPPFLAGS} -c source/ulestr.c -o build/ulestr.o
 	${AR} rcs build/libulestr.a build/ulestr.o
 
-# XXX
-# build/libuleutf.a: source/uleutf.c include/uleutf.h include/uletypes.h
-# 	mkdir -p build
-# 	${CC} ${CFLAGS} ${CPPFLAGS} -c source/uleutf.c -o build/uleutf.o
-# 	${AR} rcs build/libuleutf.a build/uleutf.o
+build/libuleutf.a: source/uleutf.c include/uleutf.h include/uletypes.h
+	mkdir -p build
+	${CC} ${CFLAGS} ${CPPFLAGS} -c source/uleutf.c -o build/uleutf.o
+	${AR} rcs build/libuleutf.a build/uleutf.o
 
 clean:
 	rm -rf build
