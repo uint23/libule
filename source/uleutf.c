@@ -1,5 +1,6 @@
 #include <stddef.h>
 
+#include "uletypes.h"
 #include "uleutf.h"
 
 int uleutf_casecmp(const char* src1, const char* src2)
@@ -126,6 +127,55 @@ int uleutf_ncmp(const char* src1, const char* src2, size_t n)
 
 	/* both utf8 strings matched */
 	return 0;
+}
+
+size_t uleutf_len(const char* str)
+{
+	return uleutf_nlen(str, ULE_USIZE_MAX);
+}
+
+size_t uleutf_nlen(const char* str, size_t n)
+{
+	const ule_i8* t = str;
+	size_t length = 0;
+
+	while ((size_t)(str - ((const char*)t)) < n && '\0' != *str) {
+		size_t cp_len = 1;
+
+		/* fast path: an ASCII byte is a whole codepoint */
+		if (0 == (0x80 & *str)) {
+			str++;
+			length++;
+			continue;
+		}
+
+		if (0xf0 == (0xf8 & *str))
+			/* 4-byte utf8 code point (began with 0b11110xxx) */
+			cp_len = 4;
+		else if (0xe0 == (0xf0 & *str))
+		      /* 3-byte utf8 code point (began with 0b1110xxxx) */
+		      cp_len = 3;
+		else if (0xc0 == (0xe0 & *str))
+		      /* 2-byte utf8 code point (began with 0b110xxxxx) */
+		      cp_len = 2;
+		else /* if (0x00 == (0x80 & *s)) { */
+		      /* 1-byte ascii (began with 0b0xxxxxxx) */
+		      cp_len = 1;
+
+		/* do not advance past the NUL or the n-byte limit */
+		do
+			str += 1;
+		while (--cp_len && (size_t)(str - ((const char*)t)) < n && '\0' != *str);
+
+		if (cp_len && (size_t)(str - ((const char*)t)) == n)
+			break;
+
+		/* no matter the bytes we marched s forward by, it was
+		   only 1 utf8 codepoint */
+		length++;
+	}
+
+	return length;
 }
 
 char* uleutf_str(const char* haystack, const char* needle)

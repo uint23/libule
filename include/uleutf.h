@@ -34,6 +34,13 @@ char* uleutf_chr(const char* src, ule_i32 chr);
    src1 > src2 respectively */
 int uleutf_cmp(const char* src1, const char* src2, size_t n);
 
+/* Number of utf8 codepoints in the utf8 string str,
+   excluding the null terminating byte */
+size_t uleutf_len(const char* str);
+
+/* Similar to utf8len, except that only at most n bytes of src are looked */
+size_t uleutf_nlen(const char* str, size_t n);
+
 /* Return less than 0, 0, greater than 0 if src1 < src2,
    src1 == src2, src1 > src2 respectively. Checking at most n
    bytes of each utf8 string */
